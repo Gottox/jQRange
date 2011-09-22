@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+		<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+		<script type="text/javascript" src="jqrange.js"></script>
+
+		<script>
+			$(document).ready(function(){
+
+				module("Basic Functionality");
+
+				test("Getting an empty jQRange object", function() {
+					var r;
+					ok( r = $.range(), "Calling $.range()" );
+					equal( r.length, 0, "length should be 0" );
+				});
+
+				test("Getting from jQuery object", function() {
+					var r;
+					var test = $('#test1')
+					ok( r = test.range(), "Calling obj.range()" );
+					equal( r.length, 1, "length should be 1" );
+					equal( r.text(), test.text(), "right text?" );
+
+					ok( r = $.range(test), "Calling $.range(obj)" );
+					equal( r.length, 1, "length should be 1" );
+					equal( r.text(), test.text(), "right text?" );
+				});
+
+				test("Range matching with context", function() {
+					var r;
+					var test = $('#test2')
+					ok( r = test.range({0:7}), "Calling obj.range()" );
+					equal( r.length, 1, "length should be 1" );
+					equal( r.text(), "Another", "length should be 1" );
+				});
+
+				test("Multi-Range matching with context", function() {
+					var r;
+					var test = $('#test2')
+					ok( r = test.range({0:7, 8:12, 22:22}), "Calling obj.range()" );
+					equal( r.length, 2, "length should be 3" );
+					equal( r.eq(0).text(), "Another", "length should be 1" );
+					equal( r.eq(1).text(), "Text", "length should be 1" );
+					equal( r.eq(2).text(), null, "length should be 1" );
+				});
+
+				test("Pattern matching", function() {
+					var r;
+					ok( r = $.range(/THISISA.*STRING/), "Calling $.range(/pattern/)" );
+					equal( r.length, 1, "length should be 0" );
+					equal( r.eq(0).text(), "THISISASEARCHSTRING", "Right pattern should be matched" );
+					equal( r.eq(1).text(), null, "Right pattern should be matched" );
+				});
+
+				test("Pattern matching against no element", function() {
+					var r;
+					var test = $()
+					ok( r = test.range(/FFFFF/), "Calling obj.range()" );
+					equal( r.length, 0, "length should be 0" );
+					equal( r.text(), null, "no text" );
+				});
+
+				test("Pattern matching without match", function() {
+					var r;
+					var text2 = $('#test2')
+					ok( r = text2.range(/FFFFF/), "Calling obj.range()" );
+					equal( r.length, 0, "no element found" );
+					equal( r.text(), null, "no text" );
+				});
+
+				test("Pattern matching for 0-length string", function() {
+					var r;
+					ok( r = $.range(/$/), "Calling $.range(/$/)" );
+					equal( r.length, 1, "length should be 1" );
+					equal( r.text(), "", "Right pattern should be matched" );
+				});
+
+				test("Pattern with offset", function() {
+					var r;
+					ok( r = $.range(/THISISASEARCHSTRING/), "Calling $.range(/pattern/)" );
+					equal( r.length, 1, "length should be 1" );
+					ok( r = r.range(/I/g), "Calling $.range(/subpattern/)" );
+					equal( r.length, 3, "length should be 3" );
+					equal( r.eq(0).text(), "I", "Right pattern should be matched" );
+					equal( r.eq(1).text(), "I", "Right pattern should be matched" );
+					equal( r.eq(2).text(), "I", "Right pattern should be matched" );
+					equal( r.eq(3).text(), null, "Right pattern should be matched" );
+				});
+
+				test("Pattern matching with context", function() {
+					var r;
+					var text2 = $('#test2')
+					ok( r = text2.range(/Text/), "Calling obj.range()" );
+					equal( r.length, 1, "length should be 1" );
+					equal( r.text(), "Text", "length should be 1" );
+				});
+
+				module("Manipulation");
+				test("Changing text", function() {
+					var r;
+					var text2 = $('#test2')
+					ok( r = text2.range(/Text/), "Calling obj.range()" );
+					ok( r.text('MYMY'), "Setting Text" );
+					equal( text2.text(), "Another MYMY", "Element should be changed accordingly" );
+				});
+
+				test("Changing html", function() {
+					var r;
+					var text2 = $('#test2')
+					ok( r = text2.range(/Text/), "Calling obj.range()" );
+					ok( r.html('<b>Text</b>'), "Inserting HTML" );
+					equal( text2.find('b').length, 1, "There should be a <b> tag now" );
+				});
+
+				test("Wrapping", function() {
+					var r;
+					var text2 = $('#test2')
+					var wrap = $('<span>')
+					ok( r = text2.range(/Text/), "Calling obj.range()" );
+					ok( r.wrap(wrap), "Wrapping" );
+					equal( text2.find('span').length, 1, "There should be a <span> tag now" );
+					equal( text2.find('span').text(), "Text", "Text should be the same" );
+				});
+			});
+		</script>
+
+	</head>
+	<body>
+		<h1 id="qunit-header">QUnit for jQRange</h1>
+		<h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+		<div id="qunit-fixture">
+			<div id="test1">First <b id="text1_inside">Second</b> Third</div>
+			<div id="test2">Another Text</div>
+			<div id="test3" class="class1">Yet another Text</div>
+			<div id="test4" class="class2">And another Text</div>
+			<div id="test5">Ifoo THISISASEARCHSTRING fooI</div>
+		</div>
+	</body>
+</html>
