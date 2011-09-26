@@ -38,7 +38,7 @@
 		</div>
 		<div style="position:fixed; top:0; left:0">
 			<button onclick="$(document).mark()">Test</button>
-			<button onclick="$('body').range(/Lorem[^0-9]*[0-9]/g).mark()">Test</button>
+			<button onclick="$('body').range(/Lorem/g).join().mark()">Test</button>
 			<button onclick="$('#source').show().text($.range('^').html());">Click</button>
 			<button onclick="$.range('^').html('<b>This</b> is Sparta');">Sparta!</button>
 			<button onclick="$.range('^').wrap('<p style=\'border:1px solid blue;\'>');">Wrap in P</button>

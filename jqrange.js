@@ -23,8 +23,15 @@
 var VERSION = 0.0,
 	jQRange;
 
+var neutralNode = $('<span>')
+	.data('jQRange inserted', true);
+
 function rangeText(range) {
 	return range.text || range.toString();
+}
+
+function getNeutral() {
+	return neutralNode.clone(true);
 }
 
 function nodeToRange(node) {
@@ -66,7 +73,7 @@ function inRange(range, element, offset) {
 	}
 	else {
 		/*var tag = Math.random().toString();
-		var posMark = $('<span>').text(tag);
+		var posMark = getNeutral().text(tag);
 
 		r = nodeToRange(element);
 		try {
@@ -102,7 +109,7 @@ function contains(container, contained, overlapping) {
 		startOffset = 0
 		endOffset = Math.max((isTextNode(contained) 
 				? $(contained).text()
-				: contained.childNodes).length-1,0);
+				: contained.childNodes).length,0);
 	}
 	start = inRange(container, startContained, startOffset)
 	end = inRange(container, endContained, endOffset)
@@ -189,7 +196,7 @@ jQRange.prototype = jQRange.fn = {
 	// The current version of jQRange  being used
 	jqrange: "0.0.0",
 
-	// The default length of a jQuery object is 0
+	// The default length of a jQRange object is 0
 	length: 0,
 
 	// Inherit methods from jQuery
@@ -213,7 +220,7 @@ jQRange.prototype = jQRange.fn = {
 	each: $.fn.each,
 	andSelf: function() {
 		return this.prevObject.jqrange ?
-			this : $.fn.andSelf();
+			$.fn.andSelf() : this;
 	},
 
 	// Hint for constructor to create a jquery instead of a jqrange object
@@ -222,29 +229,46 @@ jQRange.prototype = jQRange.fn = {
 	range: function(selector) {
 		var ret = [];
 
-		if($.isPlainObject(selector) || $.isRegexp(selector)) this.each(function() {
+		if(selector == '^') {
+			var range, sel = window.document.selection || window.getSelection()
+			if(sel.createRange)
+				range = sel.createRange()
+			else if(sel.rangeCount)
+				range = sel.getRangeAt(0)
+			this.each(function() {
+				if(contains(this, range)) {
+					ret = [ range ];
+					return 0;
+				}
+			})
+		}
+		else if(typeof selector == 'string' || $.isRegexp(selector)) this.each(function() {
 			var s = selector
 			if($.isRegexp(s)) {
 				var regexp = s;
-				s = {};
+				s = "";
 				rangeText(this).replace(regexp, function(match,offset) {
-					s[offset] = offset + match.length;
+					s += offset+':'+match.length+' ';
 				})
 			}
 			var nodes = textNodes(this, true);
 			var globalOffset = isTextNode(this.startContainer) ? this.startOffset : 0;
 			var length = rangeText(this).length;
 
-			for(var start in s) {
+			s.replace(/(^|\s+)([-+]?[0-9]+)(-|:)([-+]?[0-9]+)/g, function() {
+				var start = parseInt(RegExp.$2)
+				var end = parseInt(RegExp.$4)
+				var islength = RegExp.$3 == ':';
 				var p = 0, i, r;
-				var end = s[start];
 				start = parseInt(start);
 				if(start < 0)
 					start = length - start;
 				if(end < 0)
 					end = length - end;
+				if(islength)
+					end += start;
 				if(start > length || end > length || end < start)
-					continue;
+					return;
 				start += globalOffset;
 				end += globalOffset;
 				for(i = 0; i < nodes.length && start > p + $(nodes[i]).text().length; i++) {
@@ -263,21 +287,8 @@ jQRange.prototype = jQRange.fn = {
 				r.setStart(startNode, startOffset)
 				r.setEnd(endNode, endOffset)
 				ret.push(r);
-			}
-		})
-		else if(selector == '^') {
-			var range, sel = window.document.selection || window.getSelection()
-			if(sel.createRange)
-				range = sel.createRange()
-			else if(sel.rangeCount)
-				range = sel.getRangeAt(0)
-			this.each(function() {
-				if(contains(this, range)) {
-					ret = [ range ];
-					return 0;
-				}
 			})
-		}
+		})
 		return this.pushStack( jQRange(ret), "range", selector.toString());
 	},
 	snip: function() {
@@ -319,14 +330,14 @@ jQRange.prototype = jQRange.fn = {
 		return this;
 	},
 	html: function(html) {
-		var dummy = $('<div>');
 		if(arguments.length == 0) {
 			if(!this[0])
-				return undefined;
+				return "";
 			// IE
 			if(this[0].htmlText)
 				return this[0].htmlText;
 			// W3C
+			var dummy = getNeutral();
 			dummy.append(this[0].cloneContents());
 			return dummy.html();
 		}
@@ -361,7 +372,7 @@ jQRange.prototype = jQRange.fn = {
 		return this;
 	},
 	css: function(name, val) {
-		var wrapper = $("<span>").css(name, val);
+		var wrapper = getNeutral().css(name, val);
 		this.each(function() {
 			jQRange(this).contents().each(function() {
 				var t = $(this)
@@ -386,13 +397,23 @@ jQRange.prototype = jQRange.fn = {
 			})
 		}
 		this.each(function() {
-			if(this.commonAncestorContainer.childNodes == 0 && overlapping)
-				ret = [ this.commonAncestorContainer ]
-			else
-				rec(this.commonAncestorContainer, this);
+			rec(this.commonAncestorContainer, this);
 		})
 
 		return this.pushStack( $(ret), "contents", '');
+	},
+	
+	join: function() {
+		var ret = this[0].cloneRange();
+		this.slice(1).each(function() {
+			if(ret.compareBoundaryPoints(Range.START_TO_START, this) > 0) {
+				ret.setStart(this.startContainer, this.startOffset)
+			}
+			if(ret.compareBoundaryPoints(Range.END_TO_END, this) < 0) {
+				ret.setEnd(this.endContainer, this.endOffset)
+			}
+		})
+		return this.pushStack( jQRange(ret), "join", '');
 	}
 }
 $.each(['find','children'], function(i,action) {
@@ -423,7 +444,7 @@ $.each({'position':'Position','offset':'Offset'}, function(action,caction) {
 				return null;
 			var range = this[0].cloneRange();
 			var ret;
-			var measure = $('<span>a</span>');
+			var measure = getNeutral().text('.');
 			range.collapse(pos == 'start');
 			range.insertNode(measure[0]);
 			ret = measure[action]();
