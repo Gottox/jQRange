@@ -330,6 +330,7 @@ jQRange.prototype = jQRange.fn = {
 		return this;
 	},
 	html: function(html) {
+		var dummy = getNeutral();
 		if(arguments.length == 0) {
 			if(!this[0])
 				return "";
@@ -337,7 +338,6 @@ jQRange.prototype = jQRange.fn = {
 			if(this[0].htmlText)
 				return this[0].htmlText;
 			// W3C
-			var dummy = getNeutral();
 			dummy.append(this[0].cloneContents());
 			return dummy.html();
 		}
