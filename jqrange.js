@@ -36,6 +36,8 @@ function getNeutral() {
 }
 
 function nodeToRange(node) {
+	if(node.createTextRange) 
+		return node.createTextRange()
 	var r = document.createRange();
 	r.setStartBefore(node);
 	r.setEndAfter(node);
@@ -45,11 +47,11 @@ function textNodes(range, overlapping) {
 	var ret = [];
 
 	var rec = function(element, range) {
-		$.each(element.childNodes, function(i, v) {
-			if (!isTextNode(v))
-				rec(v, range);
-			else if (contains(range, v, overlapping))
-				ret.push(v);
+		$(element).contents().each(function() {
+			if (!isTextNode(this))
+				rec(this, range);
+			else if (contains(range, this, overlapping))
+				ret.push(this);
 		});
 	}
 	if (isTextNode(range.commonAncestorContainer) && overlapping)
@@ -69,30 +71,16 @@ function textOffset(range, overlapping) {
 }
 
 function inRange(range, element, offset) {
-	if (range.isPointInRange) {
-		return range.isPointInRange(element, offset);
+	// W3C
+	if (range.comparePoint) {
+		return range.comparePoint(element, offset) == 0;
 	}
-	else {
-		/*var tag = Math.random().toString();
-		var posMark = getNeutral().text(tag);
-
-		r = nodeToRange(element);
-		try {
-			r.setStart(element, offset);
-			r.collapse(true);
-		}
-		catch(e) {
-
-			console.log(element.nodeType);
-			console.log(offset);
-			console.log($(element).text().length);
-			console.log(element.childNodes.length);
-		}
-		r.insertNode(posMark[0]);
-		var ret = rangeText(range).match(tag);
-		posMark.remove();
-		return ret;*/
-		return false;
+	// IE
+	else if(range.inRange) {
+		var r = element.createRange();
+		r.collapse(true);
+		r.move("character", offset);
+		return range.inRange(r);
 	}
 }
 
@@ -131,7 +119,7 @@ $.isRegexp = function(obj) {
 }
 
 $.isRange = function(obj) {
-	return obj.commonAncestorContainer != undefined;
+	return obj.commonAncestorContainer != undefined || obj.pasteHTML;
 }
 
 $.fn.range = function(selector) {
