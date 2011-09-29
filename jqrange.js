@@ -36,12 +36,15 @@ function getNeutral() {
 }
 
 function nodeToRange(node) {
-	if(node.createTextRange) 
-		return node.createTextRange()
-	var r = document.createRange();
-	r.setStartBefore(node);
-	r.setEndAfter(node);
-	return r;
+	if(node.createTextRange) {
+		return node.createTextRange();
+	}
+	else if(!document.body.createTextRange){
+		var r = document.createRange();
+		r.setStartBefore(node);
+		r.setEndAfter(node);
+		return r;
+	}
 }
 function textNodes(range, overlapping) {
 	var ret = [];
@@ -82,7 +85,7 @@ function inRange(container, contained, atStart) {
 	else if(container.inRange) {
 		contained = contained.duplicate();
 		contained.collapse(atStart);
-		return container.inRange(r);
+		return container.inRange(contained);
 	}
 }
 
@@ -321,6 +324,9 @@ jQRange.prototype = jQRange.fn = {
 			dummy.append(this[0].cloneContents());
 			return dummy.html();
 		}
+		else if (this[0] && this[0].pasteHTML) {
+			this[0].pasteHTML(html)
+		}
 		else if (this[0]) {
 			dummy.html(html);
 			this[0].deleteContents();
@@ -375,7 +381,7 @@ jQRange.prototype = jQRange.fn = {
 			});
 		}
 		this.each(function() {
-			rec(this.commonAncestorContainer, this);
+			rec(this.commonAncestorContainer || this.parentElement(), this);
 		});
 		return this.pushStack($(ret), 'contents', '');
 	},
@@ -494,11 +500,9 @@ function normalize(parent, range) {
 				}
 				n.prepend(t.contents().remove());
 				t.remove();
-				//n[0].normalize();
 			}
 		}
 	});
-	//parent[0].normalize();
 	range.setStart(range.startContainer, range.startOffset)
 	range.setEnd(range.endContainer, range.endOffset)
 	return range;
