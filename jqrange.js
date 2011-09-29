@@ -70,38 +70,30 @@ function textOffset(range, overlapping) {
 	}
 }
 
-function inRange(range, element, offset) {
+function inRange(container, contained, atStart) {
 	// W3C
-	if (range.comparePoint) {
-		return range.comparePoint(element, offset) == 0;
+	if (container.compareBoundaryPoints) {
+		contained = contained.cloneRange();
+		contained.collapse(atStart);
+		var c = contained.startContainer;
+		var o = contained.startOffset;
+		return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
+				container.compareBoundaryPoints(Range.START_TO_END, contained) > 0
 	}
 	// IE
-	else if(range.inRange) {
-		var r = element.createRange();
-		r.collapse(true);
-		r.move("character", offset);
-		return range.inRange(r);
+	else if(container.inRange) {
+		contained = contained.duplicate();
+		contained.collapse(atStart);
+		return container.inRange(r);
 	}
 }
 
 function contains(container, contained, overlapping) {
 	var start, end, startContained, endContained, startOffset, endOffset;
 	container = $.isRange(container) ? container : nodeToRange(container);
-	if ($.isRange(contained)) {
-		startContained = contained.startContainer;
-		startOffset = contained.startOffset;
-		endContained = contained.endContainer;
-		endOffset = contained.endOffset;
-	}
-	else {
-		endContained = startContained = contained;
-		startOffset = 0;
-		endOffset = Math.max((isTextNode(contained)
-				? $(contained).text()
-				: contained.childNodes).length, 0);
-	}
-	start = inRange(container, startContained, startOffset);
-	end = inRange(container, endContained, endOffset);
+	contained = $.isRange(contained) ? contained : nodeToRange(contained);
+	start = inRange(container, contained, true);
+	end = inRange(container, contained, false);
 	if (overlapping)
 		return start || end;
 	else
