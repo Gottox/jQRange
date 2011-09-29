@@ -75,8 +75,6 @@ function inRange(container, contained, atStart) {
 	if (container.compareBoundaryPoints) {
 		contained = contained.cloneRange();
 		contained.collapse(atStart);
-		var c = contained.startContainer;
-		var o = contained.startOffset;
 		return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
 				container.compareBoundaryPoints(Range.START_TO_END, contained) > 0
 	}
