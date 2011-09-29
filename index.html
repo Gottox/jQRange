@@ -46,7 +46,7 @@
 			<button onclick="$.range('^').css('color', 'red');">Red</button>
 			<button onclick="$.range('^').find('*', true).css('color', 'green');">Outer Green</button>
 			<button onclick="$.range('^').find('*', false).css('color', 'green');">Inner Green</button>
-			<button onclick="$('p').eq(0).normalize();">Normalize</button>
+			<button onclick="$.range('^').normalize().mark();">Normalize</button>
 			<button onclick="
 				$('#border').css($.range('^').position()).show()
 				$('#border').css({width: $.range('^').width(), height: $.range('^').height()})

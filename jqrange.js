@@ -135,7 +135,8 @@ $.isRange = function(obj) {
 }
 
 $.fn.range = function(selector) {
-	return arguments.length == 0 ? jQRange(this) : jQRange(this).range(selector);
+	return arguments.length == 0 ? jQRange(this)
+		: jQRange(this).range(selector);
 }
 
 $.fn.mark = function() {
@@ -178,7 +179,8 @@ jQRange.prototype = jQRange.fn = {
 			});
 		}
 		else if ($.isRegexp(selector) || selector == '^' || $.isPlainObject(selector)) {
-			ranges = jQRange(context || document).range(selector).toArray();
+			ranges = jQRange(context || document)
+				.range(selector).toArray();
 		}
 
 		if (ranges) {
@@ -413,7 +415,7 @@ jQRange.prototype = jQRange.fn = {
 		return this.pushStack(jQRange(ret), 'join', '');
 	},
 	normalize: function() {
-		normalize(this[0].commonAncestorContainer, this[0].cloneRange());
+		return jQRange(normalize(this[0].commonAncestorContainer, this[0].cloneRange()));
 	}
 };
 $.each(['find', 'children'], function(i,action) {
@@ -464,7 +466,11 @@ $.each(['height', 'width'], function(i, action) {
 });
 function normalize(parent, range) {
 	var notinheritant = /^diplay|position|left|right|top|bottom$/;
-	parent.children().each(function() {
+	var mergetags = /^span$/i;
+	parent = $(parent)
+	parent.contents().each(function(i) {
+		if(isTextNode(this))
+			return;
 		var t = $(this);
 		normalize(t, range);
 		var attr = this.attributes;
@@ -480,9 +486,19 @@ function normalize(parent, range) {
 			merge = true;
 		}
 
-		if (merge) {
-			t.before(t.contents().remove());
+		if(!this.tagName.match(mergetags)) {
+			return;
+		}
+		else if (merge) {
+			var contents = t.contents().remove();
+			t.before(contents);
 			t.remove();
+			if(range.startContainer == this) {
+				range.setStart(parent, i + range.startOffset);
+			}
+			if(range.endOffset == this) {
+				range.setEnd(parent, i + range.EndOffset);
+			}
 		}
 		else if (this.nextSibling && this.nextSibling.tagName == this.tagName) {
 			var isSame = true;
@@ -492,13 +508,22 @@ function normalize(parent, range) {
 					isSame = false;
 			});
 			if (isSame) {
+				if(range.startContainer == this) {
+					range.setStart(n[0], range.startOffset);
+				}
+				if(range.endOffset == this) {
+					range.setEnd(n[0], range.EndOffset);
+				}
 				n.prepend(t.contents().remove());
 				t.remove();
-				n[0].normalize();
+				//n[0].normalize();
 			}
 		}
 	});
-	parent[0].normalize();
+	//parent[0].normalize();
+	range.setStart(range.startContainer, range.startOffset)
+	range.setEnd(range.endContainer, range.endOffset)
+	return range;
 }
 $.range = jQRange;
 }(jQuery));
