@@ -173,18 +173,70 @@ Gets/Sets text-content of current Range
 Gets/Sets html-content of current Range
 
 ### ```wrap```
+TODO
+
 ### ```css```
+TODO
+
 ### ```contents```
+TODO
+
 ### ```join```
+Joins all ranges contained it this jQRange object.
+
+e.g.
+
+	$('<div>See: foo bar foo foo</div>').range(/foo/)
+
+will result in 
+
+	['foo','foo','foo']
+
+whereas
+
+	$('<div>See: foo bar foo foo</div>').range(/foo/).join()
+
+will result in 
+
+	['foo bar foo foo']
+
 ### ```normalize```
+This function may disappear in future releases.
+
 ### ```disassemble```
-### ```find```
-### ```children```
+This function may disappear in future releases.
+
+### ```find(selector, overlapping)```
+Returns jQuery object. Basicly the same as [.find in jQuery](http://api.jquery.com/find/)
+
+Supports a second parameter to decide wheather overlapping elements should be
+matched too.
+### ```children(selector, overlapping)```
+Returns jQuery object. Basicly the same as [.children in jQuery](http://api.jquery.com/children/)
+
+Supports a second parameter to decide wheather overlapping elements should be
+matched too.
 ### ```position```
+TODO
+
 ### ```startPosition```
+TODO
+
 ### ```endPosition```
+TODO
+
 ### ```offset```
+TODO
+
 ### ```startOffset```
+TODO
+
 ### ```endOffset```
+TODO
+
 ### ```height```
+TODO
+
 ### ```width```
+TODO
+
