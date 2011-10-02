@@ -36,10 +36,10 @@ function getNeutral() {
 }
 
 function nodeToRange(node) {
-	if(node.createTextRange) {
+	if (node.createTextRange) {
 		return node.createTextRange();
 	}
-	else if(!document.body.createTextRange){
+	else if (!document.body.createTextRange) {
 		var r = document.createRange();
 		r.setStartBefore(node);
 		r.setEndAfter(node);
@@ -71,10 +71,10 @@ function inRange(container, contained, atStart) {
 		contained = contained.cloneRange();
 		contained.collapse(atStart);
 		return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
-				container.compareBoundaryPoints(Range.START_TO_END, contained) > 0
+				container.compareBoundaryPoints(Range.START_TO_END, contained) > 0;
 	}
 	// IE
-	else if(container.inRange) {
+	else if (container.inRange) {
 		contained = contained.duplicate();
 		contained.collapse(atStart);
 		return container.inRange(contained);
@@ -317,7 +317,7 @@ jQRange.prototype = jQRange.fn = {
 			return dummy.html();
 		}
 		else if (this[0] && this[0].pasteHTML) {
-			this[0].pasteHTML(html)
+			this[0].pasteHTML(html);
 		}
 		else if (this[0]) {
 			dummy.html(html);
@@ -400,10 +400,10 @@ jQRange.prototype = jQRange.fn = {
 			before.collapse(true);
 			after.collapse(false);
 			var start = before.startContainer;
-			if(isTextNode(start))
+			if (isTextNode(start))
 				start = start.parentNode;
 			var end = before.endContainer;
-			if(isTextNode(end))
+			if (isTextNode(end))
 				end = end.parentNode;
 			before.setStartBefore(start);
 			after.setEndAfter(end);
@@ -411,7 +411,7 @@ jQRange.prototype = jQRange.fn = {
 			before = before.extractContents();
 			$(start).before(before);
 			$(end).after(after);
-		})
+		});
 	}
 };
 $.each(['find', 'children'], function(i,action) {
@@ -461,11 +461,11 @@ $.each(['height', 'width'], function(i, action) {
 	}
 });
 function normalize(parent, range) {
-	var notinheritant = /^diplay|position|left|right|top|bottom$/;
+	var notinheritant = /^display|position|left|right|top|bottom$/;
 	var mergetags = /^span$/i;
-	parent = $(parent)
+	parent = $(parent);
 	parent.contents().each(function(i) {
-		if(isTextNode(this))
+		if (isTextNode(this))
 			return;
 		var t = $(this);
 		normalize(t, range);
@@ -482,17 +482,17 @@ function normalize(parent, range) {
 			merge = true;
 		}
 
-		if(!this.tagName.match(mergetags)) {
+		if (!this.tagName.match(mergetags)) {
 			return;
 		}
 		else if (merge) {
 			var contents = t.contents().remove();
 			t.before(contents);
 			t.remove();
-			if(range.startContainer == this) {
+			if (range.startContainer == this) {
 				range.setStart(parent, i + range.startOffset);
 			}
-			if(range.endOffset == this) {
+			if (range.endOffset == this) {
 				range.setEnd(parent, i + range.EndOffset);
 			}
 		}
@@ -504,10 +504,10 @@ function normalize(parent, range) {
 					isSame = false;
 			});
 			if (isSame) {
-				if(range.startContainer == this) {
+				if (range.startContainer == this) {
 					range.setStart(n[0], range.startOffset);
 				}
-				if(range.endOffset == this) {
+				if (range.endOffset == this) {
 					range.setEnd(n[0], range.EndOffset);
 				}
 				n.prepend(t.contents().remove());
@@ -515,8 +515,8 @@ function normalize(parent, range) {
 			}
 		}
 	});
-	range.setStart(range.startContainer, range.startOffset)
-	range.setEnd(range.endContainer, range.endOffset)
+	range.setStart(range.startContainer, range.startOffset);
+	range.setEnd(range.endContainer, range.endOffset);
 	return range;
 }
 $.range = jQRange;
