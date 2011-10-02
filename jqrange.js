@@ -64,14 +64,6 @@ function textNodes(range, overlapping) {
 
 	return ret;
 }
-function textOffset(range, overlapping) {
-	var ret = { offset: 0, length: rangeText(range).length };
-	if (isTextNode(this.startContainer)) {
-		ret.offset = this.startOffset;
-		if (overlapping)
-			ret.offset -= $(this.startContainer).text().length;
-	}
-}
 
 function inRange(container, contained, atStart) {
 	// W3C
@@ -399,7 +391,27 @@ jQRange.prototype = jQRange.fn = {
 		return this.pushStack(jQRange(ret), 'join', '');
 	},
 	normalize: function() {
-		return jQRange(normalize(this[0].commonAncestorContainer, this[0].cloneRange()));
+		return this.pushStack(jQRange(normalize(this[0].commonAncestorContainer, this[0].cloneRange())), 'normalize', '');
+	},
+	disassemble: function() {
+		this.each(function() {
+			var before = this.cloneRange();
+			var after = this.cloneRange();
+			before.collapse(true);
+			after.collapse(false);
+			var start = before.startContainer;
+			if(isTextNode(start))
+				start = start.parentNode;
+			var end = before.endContainer;
+			if(isTextNode(end))
+				end = end.parentNode;
+			before.setStartBefore(start);
+			after.setEndAfter(end);
+			after = after.extractContents();
+			before = before.extractContents();
+			$(start).before(before);
+			$(end).after(after);
+		})
 	}
 };
 $.each(['find', 'children'], function(i,action) {
