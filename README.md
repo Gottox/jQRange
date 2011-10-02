@@ -240,3 +240,9 @@ TODO
 ### ```width```
 TODO
 
+Contributing
+------------
+
+jQRange lives on [github](https://github.com/Gottox/jQRange) and
+[bitbucket](https://bitbucket.org/Gottox/jqrange). Feel free to fork or clone it
+on your prefered platform.
