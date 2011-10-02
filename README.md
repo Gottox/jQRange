@@ -7,7 +7,7 @@ jQRange inherits some functionality from jQuery directly. Furthermore it tries
 to imitate the behavior of jQuery whenever possible to provide a consistent
 integration to jQuery.
 
-Nevertheless, jQRange lives in it's own namespace with it's own extensions.
+Nevertheless, jQRange lives in its own namespace with it's own extensions.
 
 **jQRange is at alpha stadium at the moment** This means, that we don't support
 a stable API and some behavior will be changed.
@@ -82,68 +82,72 @@ So if you try to find the word "foo" in an element simply use:
 
 If no match is found, an empty jQRange object will be returned.
 
-### Fields
+Fields
+------
 ### ```selector```
 Contains current selector chain
+
 ### ```jqrange```
 Contains Version of jqrange
+
 ### ```length```
 The number of elements currently matched. The .size() method will return the same value
 
 ### ```_create_jquery```
 *Internal only*
 
-### Functions
+Functions
+---------
 
-### ```constructor```
+### ```constructor()```
 *Internal only*
 
-### ```init```
+### ```init()```
 *Internal only*
 
-### ```size```
+### ```size()```
 Inherit from jQuery. See http://api.jquery.com/size/
 
-### ```toArray```
+### ```toArray()```
 Inherit from jQuery. See http://api.jquery.com/toArray/
 
-### ```get```
+### ```get()```
 Inherit from jQuery. See http://api.jquery.com/get/
 
-### ```pushStack```
+### ```pushStack()```
 Inherit from jQuery. See http://api.jquery.com/pushStack/
 
-### ```each```
+### ```each()```
 Inherit from jQuery. See http://api.jquery.com/each/
 
-### ```eq```
+### ```eq()```
 Inherit from jQuery. See http://api.jquery.com/eq/
 
-### ```first```
+### ```first()```
 Inherit from jQuery. See http://api.jquery.com/first/
 
-### ```last```
+### ```last()```
 Inherit from jQuery. See http://api.jquery.com/last/
 
-### ```slice```
+### ```slice()```
 Inherit from jQuery. See http://api.jquery.com/slice/
 
-### ```map```
+### ```map()```
 Inherit from jQuery. See http://api.jquery.com/map/
 
-### ```end```
+### ```end()```
 Inherit from jQuery. See http://api.jquery.com/end/
 
-### ```push```
+### ```push()```
 Inherit from jQuery. See http://api.jquery.com/push/
 
-### ```sort```
+### ```sort()```
 Inherit from jQuery. See http://api.jquery.com/sort/
 
-### ```splice```
+### ```splice()```
 Inherit from jQuery. See http://api.jquery.com/splice/
 
-### ```andSelf```
+### ```andSelf()```
 Inherit from jQuery. See http://api.jquery.com/andSelf/
 
 Note: This will only work if the last object was a jQRange object
@@ -152,7 +156,7 @@ Note: This will only work if the last object was a jQRange object
 Will return a jQRange object containing all occurrence of ```selector```
 inside the current range.
 
-### ```snip```
+### ```snip()```
 Returns the subranges which do not cover a whole DOM-Element.
 
 e.g.
@@ -163,25 +167,25 @@ will result in
 
 	['o','ba']
 
-### ```mark```
+### ```mark()```
 Sets user selection to the Range.
 
-### ```text```
+### ```text()```
 Gets/Sets text-content of current Range
 
-### ```html```
+### ```html()```
 Gets/Sets html-content of current Range
 
-### ```wrap```
+### ```wrap()```
 TODO
 
-### ```css```
+### ```css()```
 TODO
 
-### ```contents```
+### ```contents()```
 TODO
 
-### ```join```
+### ```join()```
 Joins all ranges contained it this jQRange object.
 
 e.g.
@@ -200,10 +204,10 @@ will result in
 
 	['foo bar foo foo']
 
-### ```normalize```
+### ```normalize()```
 This function may disappear in future releases.
 
-### ```disassemble```
+### ```disassemble()```
 This function may disappear in future releases.
 
 ### ```find(selector, overlapping)```
@@ -211,33 +215,35 @@ Returns jQuery object. Basicly the same as [.find in jQuery](http://api.jquery.c
 
 Supports a second parameter to decide wheather overlapping elements should be
 matched too.
+
 ### ```children(selector, overlapping)```
 Returns jQuery object. Basicly the same as [.children in jQuery](http://api.jquery.com/children/)
 
 Supports a second parameter to decide wheather overlapping elements should be
 matched too.
-### ```position```
+
+### ```position()```
 TODO
 
-### ```startPosition```
+### ```startPosition()```
 TODO
 
-### ```endPosition```
+### ```endPosition()```
 TODO
 
-### ```offset```
+### ```offset()```
 TODO
 
-### ```startOffset```
+### ```startOffset()```
 TODO
 
-### ```endOffset```
+### ```endOffset()```
 TODO
 
-### ```height```
+### ```height()```
 TODO
 
-### ```width```
+### ```width()```
 TODO
 
 Contributing
