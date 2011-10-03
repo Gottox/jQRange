@@ -91,7 +91,7 @@ Contains current selector chain
 Contains Version of jqrange
 
 ### ```length```
-The number of elements currently matched. The .size() method will return the same value
+The number of ranges currently matched. The .size() method will return the same value
 
 ### ```_create_jquery```
 *Internal only*
@@ -177,13 +177,17 @@ Gets/Sets text-content of current Range
 Gets/Sets html-content of current Range
 
 ### ```wrap()```
-TODO
+Wrap an HTML structure around each range in the set of matched ranges.
 
+*Note:* This may change the DOM tree and therefor invalidate the input range.
+The range returned by wrap is updated
 ### ```css()```
-TODO
+Get/Set the value of a style property for the first element in the set of matched elements.
 
+*Note:* This may change the DOM tree and therefor invalidate the input range.
+The range returned by wrap is updated
 ### ```contents()```
-TODO
+**TODO**
 
 ### ```join()```
 Joins all ranges contained it this jQRange object.
@@ -223,28 +227,35 @@ Supports a second parameter to decide wheather overlapping elements should be
 matched too.
 
 ### ```position()```
-TODO
+Get the current coordinates of the first range in the set of matched ranges,
+relative to the offset parent.
 
 ### ```startPosition()```
-TODO
+Get the current coordinates of the end cursor of the first range in the set of
+matched ranges, relative to the offset parent.
+
 
 ### ```endPosition()```
-TODO
+Get the current coordinates of the end cursor of the first range in the set of
+matched ranges, relative to the offset parent.
 
 ### ```offset()```
-TODO
+Get the current coordinates of the first range in the set of matched ranges,
+relative to the document.
 
 ### ```startOffset()```
-TODO
+Get the current coordinates of the start cursor of the first range in the set of
+matched ranges, relative to the document.
 
 ### ```endOffset()```
-TODO
+Get the current coordinates of the end cursor of the first range in the set of
+matched ranges, relative to the document.
 
 ### ```height()```
-TODO
+Get the current computed height for the first element in the set of matched ranges.
 
 ### ```width()```
-TODO
+Get the current computed width for the first element in the set of matched ranges.
 
 Contributing
 ------------
