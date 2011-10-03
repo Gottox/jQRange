@@ -185,7 +185,7 @@ The range returned by wrap is updated
 Get/Set the value of a style property for the first element in the set of matched elements.
 
 *Note:* This may change the DOM tree and therefor invalidate the input range.
-The range returned by wrap is updated
+The range returned by css is updated
 ### ```contents()```
 **TODO**
 
