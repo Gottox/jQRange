@@ -330,36 +330,45 @@ jQRange.prototype = jQRange.fn = {
 	},
 	wrap: function(wrap, dontsplit) {
 		wrap = $(wrap);
+		var ret = [];
 		this.each(function() {
 			if (!dontsplit) {
 				var w = wrap.clone(true)
 					.append(this.extractContents());
 				this.insertNode(w[0]);
+				ret.push(w.range());
 			}
 			else {
+				var j = [];
 				jQRange(this).contents().each(function() {
 					var t = $(this);
 					if (isTextNode(this) && t.text().match(/\S/))
-						t.wrap(wrap);
+						j.push(t.wrap(wrap.clone()));
 				});
-				jQRange(this).snip().wrap(wrap, false);
+				j.push(jQRange(this).snip().wrap(wrap.clone(), false).join()[0]);
+				ret.push(jQRange(j).join()[0])
 			}
 		});
-		return this;
+		return jQRange(ret);
 	},
 	css: function(name, val) {
 		var wrapper = getNeutral().css(name, val);
+		var ret = [];
 		this.each(function() {
+			var j = []
 			jQRange(this).contents().each(function() {
 				var t = $(this);
 				if (!isTextNode(this))
 					t.css(name, val);
 				else if (t.text().match(/\S/))
 					t.wrap(wrapper.clone());
+				j.push(t.range());
+				
 			});
-			jQRange(this).snip().wrap(wrapper.clone(), false);
+			j.push(jQRange(this).snip().wrap(wrapper.clone(), false).join()[0]);
+			ret.push(jQRange(j).join()[0])
 		});
-		return this;
+		return jQRange(ret);
 	},
 	contents: function(overlapping) {
 		var ret = [];
