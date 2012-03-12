@@ -430,7 +430,7 @@ $.each(['find', 'children'], function(i,action) {
 		if (action == 'find') {
 			t = t.find(selector).andSelf();
 		}
-		return t.filter(selector);
+		return selector === undefined ? t : t.filter(selector);
 	}
 });
 $.each({'position': 'Position', 'offset': 'Offset'}, function(action,caction) {

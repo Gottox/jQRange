@@ -106,7 +106,9 @@ $(document).ready(function(){
 		ok ( r = $('#qunit-fixture').range(/nother|subnode/gi).join(), "Selecting a range over two nodes" );
 		equal( r.text().replace(/\s+/g,' '), "nother Simple Text Text with SubNode")
 		ok ( j = r.contents(), "getting inner contents" );
-		equals(j.length, 1)
+		equal(j.length, 3, "There are 3 childNodes")
+		ok ( j = r.children(), "getting inner children (contents without textNodes)" );
+		equal(j.length, 1, "There is 1 childNode")
 	})
 
 	module("Manipulation");

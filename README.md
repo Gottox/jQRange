@@ -42,7 +42,7 @@ To retrieve the current selection if it's inside an element use:
 It will return an empty jQRange object if there is no selection, the selection
 is outside of foobar or if the selection is only overlapping.
 
-If you're trying to get the selection from a global scope
+	If you're trying to get the selection from a global scope use
 
 	$.range('^')
 
@@ -166,6 +166,8 @@ e.g.
 will result in
 
 	['o','ba']
+
+Note that this Array does not contain Strings but Range Objects.
 
 ### ```mark()```
 Sets user selection to the Range.
