@@ -343,13 +343,22 @@ jQRange.prototype = jQRange.fn = {
 				jQRange(this).contents().each(function() {
 					var t = $(this);
 					if (isTextNode(this) && t.text().match(/\S/))
-						j.push(t.wrap(wrap.clone()));
+						j.push(t.wrap(wrap.clone())[0]);
 				});
-				j.push(jQRange(this).snip().wrap(wrap.clone(), false).join()[0]);
+				jQRange(this).snip().wrap(wrap, false).each(function() {
+					j.push(this);
+				})
 				ret.push(jQRange(j).join()[0])
 			}
 		});
 		return jQRange(ret);
+	},
+	unwrap: function() {
+		this.each(function () {
+			var t = jQRange(this);
+			t.disassemble();
+			t.contents(true).unwrap()
+		});
 	},
 	css: function(name, val) {
 		var wrapper = getNeutral().css(name, val);
@@ -388,7 +397,9 @@ jQRange.prototype = jQRange.fn = {
 	},
 
 	join: function() {
-		var ret = this[0].cloneRange();
+		var ret = document.createRange();
+		ret.setStart(this[0].startContainer, this[0].startOffset);
+		ret.setEnd(this[0].endContainer, this[0].endOffset);
 		this.slice(1).each(function() {
 			if (ret.compareBoundaryPoints(Range.START_TO_START, this) > 0) {
 				ret.setStart(this.startContainer, this.startOffset);
@@ -399,27 +410,39 @@ jQRange.prototype = jQRange.fn = {
 		});
 		return this.pushStack(jQRange(ret), 'join', '');
 	},
+
 	normalize: function() {
 		return this.pushStack(jQRange(normalize(this[0].commonAncestorContainer, this[0].cloneRange())), 'normalize', '');
 	},
+
 	disassemble: function() {
 		this.each(function() {
 			var before = this.cloneRange();
 			var after = this.cloneRange();
-			before.collapse(true);
-			after.collapse(false);
 			var start = before.startContainer;
+			var end = before.endContainer;
+			var beforenode = null, afternode = null;
+
+			before.collapse(true);
 			if (isTextNode(start))
 				start = start.parentNode;
-			var end = before.endContainer;
+			before.setStartBefore(start);
+
+			after.collapse(false);
 			if (isTextNode(end))
 				end = end.parentNode;
-			before.setStartBefore(start);
 			after.setEndAfter(end);
-			after = after.extractContents();
-			before = before.extractContents();
-			$(start).before(before);
-			$(end).after(after);
+
+			if(rangeText(before) != '') {
+				beforenode = before.extractContents();
+			}
+			if(rangeText(after) != '') {
+				afternode = after.extractContents();
+			}
+			if(beforenode)
+				$(start).before(beforenode);
+			if(afternode)
+				$(end).after(afternode);
 		});
 	}
 };

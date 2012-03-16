@@ -6,6 +6,7 @@
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="jqrange.js"></script>
 		<!--
+		<script type="text/javascript" src="ierange-m2.js"></script>
 		<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
 		-->
 		<script>
@@ -44,6 +45,7 @@
 			<button onclick="$.range('^').html('<b>This</b> is Sparta');">Sparta!</button>
 			<button onclick="$.range('^').wrap('<p style=\'border:1px solid blue;\'>');">Wrap in P</button>
 			<button onclick="$.range('^').wrap('<span style=\'border:1px solid blue;\'>', true);">Wrap in span</button>
+			<button onclick="$.range('^').unwrap();">unwrap</button>
 			<button onclick="$.range('^').css('color', 'red');">Red</button>
 			<button onclick="$.range('^').find('*', true).css('color', 'green');">Outer Green</button>
 			<button onclick="$.range('^').find('*', false).css('color', 'green');">Inner Green</button>

@@ -1,3 +1,5 @@
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Gottox&url=https://github.com/Gottox/jQRange&title=jQRange&language=&tags=github&category=software)
+
 jQRange jQuery Extension
 ========================
 jQRange is a jQuery extension which aims to make W3C/InternetExplorer Ranges
