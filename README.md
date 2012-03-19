@@ -17,6 +17,17 @@ a stable API and some behavior will be changed.
 At the moment, jQRange works on Opera, Firefox (tested on &gt;3.6) and Webkit
 (tested on Chrome and Safari). Internet Explorer does not work yet.
 
+XKCD
+----
+
+I just noticed todays xkcd-comic: <http://xkcd.com/1031>
+
+jQRange is great for that:
+
+```
+	$.range(/keyboard/gi).text("Leopard");
+```
+
 Basic usage
 -----------
 
