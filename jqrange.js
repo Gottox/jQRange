@@ -295,48 +295,48 @@ jQRange.prototype = jQRange.fn = {
 		return this;
 	},
 	text: function(text) {
-		var r = this[0];
-		if (arguments.length == 0)
-			return r ? rangeText(r) : null;
-		else if (r) {
-			r.deleteContents();
-			r.insertNode(document.createTextNode(text));
-		}
+		if (text === undefined)
+			return this[0] ? rangeText(this[0]) : null;
+		this.each(function() {
+			this.deleteContents();
+			this.insertNode(document.createTextNode(text));
+		})
 		return this;
 	},
 	html: function(html) {
-		var dummy = getNeutral();
+		var d = getNeutral();
 		if (arguments.length == 0) {
 			if (!this[0])
 				return '';
 			// IE
-			if (this[0].htmlText)
+			else if (this[0].htmlText)
 				return this[0].htmlText;
 			// W3C
-			dummy.append(this[0].cloneContents());
-			return dummy.html();
+			d.append(this[0].cloneContents());
+			return d.html();
 		}
-		else if (this[0] && this[0].pasteHTML) {
-			this[0].pasteHTML(html);
-		}
-		else if (this[0]) {
-			dummy.html(html);
-			this[0].deleteContents();
-			var d = dummy[0];
-			while (d.lastChild)
-				this[0].insertNode(d.removeChild(d.lastChild));
-		}
+		this.each(function() {
+			if (this && this.pasteHTML) {
+				this.pasteHTML(html);
+			}
+			else {
+				d.html(html);
+				this.deleteContents();
+				while (d.lastChild)
+					this.insertNode(d.removeChild(d.lastChild));
+			}
+		});
 		return this;
 	},
 	wrap: function(wrap, dontsplit) {
 		wrap = $(wrap);
-		var ret = [];
+		var ret = jQRange();
 		this.each(function() {
 			if (!dontsplit) {
 				var w = wrap.clone(true)
 					.append(this.extractContents());
 				this.insertNode(w[0]);
-				ret.push(w.range());
+				ret.push(w.range()[0]);
 			}
 			else {
 				var j = [];
@@ -351,7 +351,7 @@ jQRange.prototype = jQRange.fn = {
 				ret.push(jQRange(j).join()[0])
 			}
 		});
-		return jQRange(ret);
+		return ret;
 	},
 	unwrap: function() {
 		this.each(function () {
@@ -362,7 +362,7 @@ jQRange.prototype = jQRange.fn = {
 	},
 	css: function(name, val) {
 		var wrapper = getNeutral().css(name, val);
-		var ret = [];
+		var ret = jQRange();
 		this.each(function() {
 			var j = []
 			jQRange(this).contents().each(function() {
@@ -377,10 +377,10 @@ jQRange.prototype = jQRange.fn = {
 			j.push(jQRange(this).snip().wrap(wrapper.clone(), false).join()[0]);
 			ret.push(jQRange(j).join()[0])
 		});
-		return jQRange(ret);
+		return ret;
 	},
 	contents: function(overlapping) {
-		var ret = [];
+		var ret = $();
 
 		var rec = function(element, range) {
 			$.each(element.childNodes, function(i, v) {
@@ -393,7 +393,7 @@ jQRange.prototype = jQRange.fn = {
 		this.each(function() {
 			rec(this.commonAncestorContainer || this.parentElement(), this);
 		});
-		return this.pushStack($(ret), 'contents', '');
+		return this.pushStack(ret, 'contents', '');
 	},
 
 	join: function() {
