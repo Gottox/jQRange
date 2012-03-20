@@ -322,8 +322,8 @@ jQRange.prototype = jQRange.fn = {
 			else {
 				d.html(html);
 				this.deleteContents();
-				while (d.lastChild)
-					this.insertNode(d.removeChild(d.lastChild));
+				while (d[0].lastChild)
+					this.insertNode(d[0].removeChild(d[0].lastChild));
 			}
 		});
 		return this;
