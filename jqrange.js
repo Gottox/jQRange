@@ -25,14 +25,35 @@ var VERSION = 0.0
 	, tagflag = 'jQRange inserted'
 	, neutralNode = $('<span>').data(tagflag, true);
 
+// Utils
 function getNeutral() {
 	return neutralNode.clone(true);
 }
 
+function isTextNode(node) {
+	return $.inArray(node.nodeType, [3, 4, 8]) != -1;
+}
+
+function isRegexp(obj) {
+	return typeof obj == 'object' &&
+			obj.toString().charAt(0) == '/' &&
+			obj.exec && obj.test;
+}
+
+function isRange(obj) {
+	return obj.commonAncestorContainer != undefined || obj.pasteHTML;
+}
+
+// Range Wrapper
 function createRange(node) {
 	var r;
 	if(node === undefined) {
 		r = document.createRange();
+	}
+	else if(isRange(node)) {
+		r = node
+		if(r.isJRange)
+			return r;
 	}
 	else if(node.createTextRange) {
 		r = node.createTextRange();
@@ -45,6 +66,7 @@ function createRange(node) {
 
 	r.isJRange = true;
 
+	// Adding Features to TextRange
 	r.toString = r.toString || function() {
 		return this.text;
 	}
@@ -56,7 +78,22 @@ function createRange(node) {
 	r.setEnd = r.setEnd || function(node, offset) {
 		// TODO
 	}
+	r.cloneRange = r.cloneRange || function() {
+		return r.duplicate();
+	}
 
+	// Adding Features to W3C Ranges
+	r.select = r.select || function() {
+		var sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange(this);
+	}
+	r.inRange = r.inRange || function(contained) {
+		return this.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
+				this.compareBoundaryPoints(Range.START_TO_END, contained) > 0;
+	}
+
+	// Custom Features
 	r.textNodes = function(overlapping) {
 		var ret = [];
 		var rec = function(element, range) {
@@ -76,23 +113,13 @@ function createRange(node) {
 
 	r.contains = function(contained, overlapping) {
 		function inRange(container, contained, atStart) {
-			// W3C
-			if (container.compareBoundaryPoints) {
-				contained = contained.cloneRange();
-				contained.collapse(atStart);
-				return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
-						container.compareBoundaryPoints(Range.START_TO_END, contained) > 0;
-			}
-			// IE
-			else if (container.inRange) {
-				contained = contained.duplicate();
-				contained.collapse(atStart);
-				return container.inRange(contained);
-			}
+			contained = contained.cloneRange();
+			contained.collapse(atStart);
+			return container.inRange(contained);
 		}
-		var start, end, startContained, endContained, startOffset, endOffset, container = this;
-		container = isRange(container) ? container : createRange(container);
-		contained = isRange(contained) ? contained : createRange(contained);
+		var start, end, startContained, endContained, startOffset, endOffset, container;
+		container = createRange(this);
+		contained = createRange(contained);
 		start = inRange(container, contained, true);
 		end = inRange(container, contained, false);
 		if (overlapping)
@@ -104,20 +131,7 @@ function createRange(node) {
 	return r;
 }
 
-function isTextNode(node) {
-	return $.inArray(node.nodeType, [3, 4, 8]) != -1;
-}
-
-function isRegexp(obj) {
-	return typeof obj == 'object' &&
-			obj.toString().charAt(0) == '/' &&
-			obj.exec && obj.test;
-}
-
-function isRange(obj) {
-	return obj.commonAncestorContainer != undefined || obj.pasteHTML;
-}
-
+// jQuery Wrapper
 $.fn.range = function(selector) {
 	return arguments.length == 0 ? jQRange(this)
 		: jQRange(this).range(selector);
@@ -298,13 +312,7 @@ jQRange.prototype = jQRange.fn = {
 		return this.pushStack(jQRange(ret), 'snip', '');
 	},
 	mark: function() {
-		if (this[0].select)
-			this[0].select();
-		else {
-			var sel = window.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(this[0]);
-		}
+		this[0].select();
 		return this;
 	},
 	text: function(text) {
