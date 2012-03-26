@@ -20,90 +20,101 @@
  * THE SOFTWARE.
  */
 (function($, undefined) {
-var VERSION = 0.0,
-	jQRange;
-
-var tagflag = 'jQRange inserted';
-var neutralNode = $('<span>')
-	.data(tagflag, true);
-
-function rangeText(range) {
-	return range.text || range.toString();
-}
+var VERSION = 0.0
+	, jQRange
+	, tagflag = 'jQRange inserted'
+	, neutralNode = $('<span>').data(tagflag, true);
 
 function getNeutral() {
 	return neutralNode.clone(true);
 }
 
-function nodeToRange(node) {
-	if (node.createTextRange) {
-		return node.createTextRange();
+function createRange(node) {
+	var r;
+	if(node === undefined) {
+		r = document.createRange();
 	}
-	else if (!document.body.createTextRange) {
-		var r = document.createRange();
+	else if(node.createTextRange) {
+		r = node.createTextRange();
+	}
+	else {
+		r = document.createRange();
 		r.setStartBefore(node);
 		r.setEndAfter(node);
-		return r;
 	}
-}
-function textNodes(range, overlapping) {
-	var ret = [];
 
-	var rec = function(element, range) {
-		$(element).contents().each(function() {
-			if (!isTextNode(this))
-				rec(this, range);
-			else if (contains(range, this, overlapping))
-				ret.push(this);
-		});
+	r.isJRange = true;
+
+	r.toString = r.toString || function() {
+		return this.text;
 	}
-	if (isTextNode(range.commonAncestorContainer) && overlapping)
-		ret = [range.commonAncestorContainer];
-	else
-		rec(range.commonAncestorContainer, range);
 
-	return ret;
-}
-
-function inRange(container, contained, atStart) {
-	// W3C
-	if (container.compareBoundaryPoints) {
-		contained = contained.cloneRange();
-		contained.collapse(atStart);
-		return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
-				container.compareBoundaryPoints(Range.START_TO_END, contained) > 0;
+	r.setStart = r.setStart || function(node, offset) {
+		// TODO
 	}
-	// IE
-	else if (container.inRange) {
-		contained = contained.duplicate();
-		contained.collapse(atStart);
-		return container.inRange(contained);
-	}
-}
 
-function contains(container, contained, overlapping) {
-	var start, end, startContained, endContained, startOffset, endOffset;
-	container = $.isRange(container) ? container : nodeToRange(container);
-	contained = $.isRange(contained) ? contained : nodeToRange(contained);
-	start = inRange(container, contained, true);
-	end = inRange(container, contained, false);
-	if (overlapping)
-		return start || end;
-	else
-		return start && end;
+	r.setEnd = r.setEnd || function(node, offset) {
+		// TODO
+	}
+
+	r.textNodes = function(overlapping) {
+		var ret = [];
+		var rec = function(element, range) {
+			$(element).contents().each(function() {
+				if (!isTextNode(this))
+					rec(this, range);
+				else if (range.contains(this, overlapping))
+					ret.push(this);
+			});
+		}
+		if (isTextNode(this.commonAncestorContainer) && overlapping)
+			ret = [this.commonAncestorContainer];
+		else
+			rec(this.commonAncestorContainer, this);
+		return ret;
+	}
+
+	r.contains = function(contained, overlapping) {
+		function inRange(container, contained, atStart) {
+			// W3C
+			if (container.compareBoundaryPoints) {
+				contained = contained.cloneRange();
+				contained.collapse(atStart);
+				return container.compareBoundaryPoints(Range.START_TO_START, contained) < 0 &&
+						container.compareBoundaryPoints(Range.START_TO_END, contained) > 0;
+			}
+			// IE
+			else if (container.inRange) {
+				contained = contained.duplicate();
+				contained.collapse(atStart);
+				return container.inRange(contained);
+			}
+		}
+		var start, end, startContained, endContained, startOffset, endOffset, container = this;
+		container = isRange(container) ? container : createRange(container);
+		contained = isRange(contained) ? contained : createRange(contained);
+		start = inRange(container, contained, true);
+		end = inRange(container, contained, false);
+		if (overlapping)
+			return start || end;
+		else
+			return start && end;
+	}
+
+	return r;
 }
 
 function isTextNode(node) {
 	return $.inArray(node.nodeType, [3, 4, 8]) != -1;
 }
 
-$.isRegexp = function(obj) {
+function isRegexp(obj) {
 	return typeof obj == 'object' &&
 			obj.toString().charAt(0) == '/' &&
 			obj.exec && obj.test;
 }
 
-$.isRange = function(obj) {
+function isRange(obj) {
 	return obj.commonAncestorContainer != undefined || obj.pasteHTML;
 }
 
@@ -114,6 +125,7 @@ $.fn.range = function(selector) {
 
 $.fn.mark = function() {
 	this.range().mark();
+	return this;
 }
 
 jQRange = function(selector, context) {
@@ -136,7 +148,7 @@ jQRange.prototype = jQRange.fn = {
 			context = jQRange(context)[0];
 
 
-		if ($.isRange(selector)) {
+		if (isRange(selector)) {
 			ranges = [selector];
 		}
 		else if ($.isArray(selector) || selector.jqrange) {
@@ -146,12 +158,12 @@ jQRange.prototype = jQRange.fn = {
 		}
 		else if (selector.jquery || selector.nodeType) {
 			$(selector).each(function() {
-				ranges.push(nodeToRange(this == document
+				ranges.push(createRange(this == document
 					? document.body
 					: this));
 			});
 		}
-		else if ($.isRegexp(selector) || selector == '^' || $.isPlainObject(selector)) {
+		else if (isRegexp(selector) || selector == '^' || $.isPlainObject(selector)) {
 			ranges = jQRange(context || document)
 				.range(selector).toArray();
 		}
@@ -208,9 +220,9 @@ jQRange.prototype = jQRange.fn = {
 		if (selector == '^') {
 			var range, sel = window.document.selection || window.getSelection();
 			if (sel.createRange)
-				range = sel.createRange();
+				range = createRange(sel.createRange());
 			else if (sel.rangeCount)
-				range = sel.getRangeAt(0);
+				range = createRange(sel.getRangeAt(0));
 			this.each(function() {
 				if (contains(this, range)) {
 					ret = [range];
@@ -218,18 +230,19 @@ jQRange.prototype = jQRange.fn = {
 				}
 			});
 		}
-		else if (typeof selector == 'string' || $.isRegexp(selector)) this.each(function() {
+		else if (typeof selector == 'string' || isRegexp(selector)) this.each(function() {
 			var s = selector;
-			if ($.isRegexp(s)) {
+			if (isRegexp(s)) {
 				var regexp = s;
 				s = '';
-				rangeText(this).replace(regexp, function(match,offset) {
+				this.toString().replace(regexp, function(match,offset) {
 					s += offset + ':' + match.length + ' ';
 				});
 			}
-			var nodes = textNodes(this, true);
+			console.log(this);
+			var nodes = this.textNodes(true);
 			var globalOffset = isTextNode(this.startContainer) ? this.startOffset : 0;
-			var length = rangeText(this).length;
+			var length = this.toString().length;
 
 			s.replace(/(^|\s+)([-+]?[0-9]+)(-|:)([-+]?[0-9]+)/g, function() {
 				var start = parseInt(RegExp.$2);
@@ -259,7 +272,7 @@ jQRange.prototype = jQRange.fn = {
 				var endNode = nodes[i];
 				var endOffset = end - p;
 
-				r = document.createRange();
+				r = createRange();
 				r.setStart(startNode, startOffset);
 				r.setEnd(endNode, endOffset);
 				ret.push(r);
@@ -296,7 +309,7 @@ jQRange.prototype = jQRange.fn = {
 	},
 	text: function(text) {
 		if (text === undefined)
-			return this[0] ? rangeText(this[0]) : null;
+			return this[0] ? this[0].toString() : null;
 		this.each(function() {
 			this.deleteContents();
 			this.insertNode(document.createTextNode(text));
@@ -384,7 +397,7 @@ jQRange.prototype = jQRange.fn = {
 
 		var rec = function(element, range) {
 			$.each(element.childNodes, function(i, v) {
-				if (contains(range, v, overlapping))
+				if (range.contains(v, overlapping))
 					ret.push(v);
 				else
 					rec(v, range);
@@ -397,7 +410,7 @@ jQRange.prototype = jQRange.fn = {
 	},
 
 	join: function() {
-		var ret = document.createRange();
+		var ret = createRange();
 		ret.setStart(this[0].startContainer, this[0].startOffset);
 		ret.setEnd(this[0].endContainer, this[0].endOffset);
 		this.slice(1).each(function() {
