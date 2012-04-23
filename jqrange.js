@@ -238,7 +238,7 @@ jQRange.prototype = jQRange.fn = {
 			else if (sel.rangeCount)
 				range = createRange(sel.getRangeAt(0));
 			this.each(function() {
-				if (contains(this, range)) {
+				if (this.contains(range)) {
 					ret = [range];
 					return 0;
 				}
